@@ -1,28 +1,11 @@
+import './style.css';
+
 export interface Card {
     id: string;
     src: string;
     isFlipped: boolean;
     founded: boolean;
 }
-
-export enum CurrentStatus {
-    NotStarted = 'NotStarted',
-    Started = 'Started',
-    Finished = 'Finished'
-}
-
-export type GameState = {
-    flippedCards: number;
-    pickedCards: Card[];
-    currentStatus: CurrentStatus;
-    attempts: number;
-};
-
-export interface ElementWithInnerText {
-    innerText: string;
-}
-
-export const CARDS_TO_FLIP = 2;
 
 export let cards: Card[] = [
     {
@@ -98,3 +81,34 @@ export let cards: Card[] = [
         founded: false
     }
 ];
+
+export function createCardElement(imageSrc: string, id: string): HTMLElement {
+    const cardContainer = document.createElement("div");
+    cardContainer.classList.add("card");
+
+    const cardFront = document.createElement("div");
+    cardFront.classList.add("card-front");
+
+    const cardBack = document.createElement("div");
+    cardBack.classList.add("card-back");
+
+    const cardImage = document.createElement("img");
+    cardImage.src = imageSrc;
+    cardImage.id = id;
+
+    cardBack.appendChild(cardImage);
+    cardContainer.appendChild(cardFront);
+    cardContainer.appendChild(cardBack);
+
+    return cardContainer;
+}
+
+
+const cardsContainer = document.getElementById("cards-container") as HTMLElement;
+
+cards.forEach((card) => {
+    const cardElement = createCardElement(card.src, card.id);
+    cardElement.id = card.id;
+    cardsContainer.appendChild(cardElement);
+    cardElement.style.transform = "rotateY(180deg)";
+});
