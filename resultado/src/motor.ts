@@ -58,3 +58,7 @@ export function addGameAttempt() {
 export function changeGameStatus(status: CurrentStatus) {
     gameState.currentStatus = status;
 }
+
+export function isGameWon(): boolean {
+    return cards.every((card) => card.founded);
+}

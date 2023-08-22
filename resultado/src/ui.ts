@@ -1,5 +1,5 @@
 import { ElementWithInnerText, Card, CARDS_TO_FLIP, cards, CurrentStatus } from './model';
-import { shuffleArray, checkIfCouple, gameState, resetGameState, addFlippedCards, addGameAttempt, changeGameStatus } from './motor';
+import { shuffleArray, checkIfCouple, gameState, resetGameState, addFlippedCards, addGameAttempt, changeGameStatus, isGameWon } from './motor';
 
 
 const elements = {
@@ -104,9 +104,6 @@ function flipCard(card: Card) {
     }
 }
 
-function isGameWon(): boolean {
-    return cards.every((card) => card.founded);
-}
 
 function updateAttempts(scoreText: HTMLElement) {
     addGameAttempt()
