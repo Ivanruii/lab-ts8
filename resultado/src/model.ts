@@ -12,6 +12,7 @@ export enum CurrentStatus {
 }
 
 export type GameState = {
+    cards: Card[];
     flippedCards: number;
     pickedCards: Card[];
     currentStatus: CurrentStatus;
@@ -61,40 +62,4 @@ export let cards: Card[] = [
         isFlipped: false,
         founded: false
     },
-    {
-        id: "7",
-        src: "https://github.com/Lemoncode/fotos-ejemplos/blob/main/memo/1.png?raw=true",
-        isFlipped: false,
-        founded: false
-    },
-    {
-        id: "8",
-        src: "https://github.com/Lemoncode/fotos-ejemplos/blob/main/memo/2.png?raw=true",
-        isFlipped: false,
-        founded: false
-    },
-    {
-        id: "9",
-        src: "https://github.com/Lemoncode/fotos-ejemplos/blob/main/memo/3.png?raw=true",
-        isFlipped: false,
-        founded: false
-    },
-    {
-        id: "10",
-        src: "https://github.com/Lemoncode/fotos-ejemplos/blob/main/memo/4.png?raw=true",
-        isFlipped: false,
-        founded: false
-    },
-    {
-        id: "11",
-        src: "https://github.com/Lemoncode/fotos-ejemplos/blob/main/memo/5.png?raw=true",
-        isFlipped: false,
-        founded: false
-    },
-    {
-        id: "12",
-        src: "https://github.com/Lemoncode/fotos-ejemplos/blob/main/memo/6.png?raw=true",
-        isFlipped: false,
-        founded: false
-    }
 ];

@@ -1,70 +1,41 @@
-import { Card, GameState, CARDS_TO_FLIP, cards, CurrentStatus } from './model';
-import { createCardElement, createStartButton, createScoreText, setAlertText } from './ui';
-
-const cardsContainer = document.getElementById("cards-container");
-const infoContainer = document.getElementById("info-container");
+import { GameState, CurrentStatus, Card, cards } from "./model";
 
 export let gameState: GameState = {
+    cards: createCardsCouples(),
     flippedCards: 0,
     pickedCards: [],
     currentStatus: CurrentStatus.NotStarted,
     attempts: 0
 };
 
-function handleStartButtonClick() {
-    const startButton = createStartButton();
-
-    startButton.addEventListener("click", () => {
-        gameState.currentStatus = CurrentStatus.Started;
-        initializeGame();
-        startButton.remove();
-    });
-
-    return startButton;
+function createCardsCouples() {
+    const duplicatedCards = Array.from(cards, card => ({ ...card, id: card.id + '_copy'}));
+    cards.push(...duplicatedCards);
+    return cards
 }
 
-function flipCard(card: Card) {
-    const cardElement = document.getElementById(card.id) as HTMLElement;
-
-    if (card.founded) {
-        return setAlertText<HTMLElement>("alerts-container", "No puedes darle la vuelta a una carta encontrada.", 4000);
-    }
-
-    if (cardElement) {
-        if (!card.isFlipped) {
-            cardElement.style.transform = "rotateY(180deg)";
-        } else {
-            cardElement.style.transform = "rotateY(0deg)";
-        }
-        card.isFlipped = !card.isFlipped;
-    }
-}
-
-function shuffleArray<T>(array: T[]): T[] {
+export function shuffleArray<T>(array: T[]): T[] {
     const shuffledArray = [...array];
     shuffledArray.sort(() => Math.random() - 0.5);
     return shuffledArray;
 }
 
-function isGameWon(): boolean {
-    return cards.every((card) => card.founded);
-}
-
-function checkIfCouple(pickedCards: Card[]) {
+export function checkIfCouple(pickedCards: Card[]) {
     if (pickedCards.length === 2) {
         const [cardA, cardB] = pickedCards;
 
-        if (cardA.src === cardB.src) {
+        if (cardA.id.charAt(0) === cardB.id.charAt(0)) {
             cardA.founded = true;
             cardB.founded = true;
-        } else {
-            flipCard(cardA);
-            flipCard(cardB);
+            return true;
         }
+        return false;
     }
+
+    return new Error("Not enough cards to check");
 }
 
-function resetGameState() {
+export function resetGameState() {
     gameState.pickedCards = [];
     gameState.flippedCards = 0;
     gameState.attempts = 0;
@@ -76,96 +47,14 @@ function resetGameState() {
     })
 }
 
-function updateAttempts(scoreText: HTMLElement): number {
-    gameState.attempts++;
-    scoreText.innerHTML = `Intentos: ${gameState.attempts}`;
-    return gameState.attempts;
-}
-
-function handleGameWin(cardsContainer: HTMLElement) {
-    setAlertText<HTMLElement>("alerts-container", "¡Has ganado! Espera para volver a jugar.", 5000);
-    setTimeout(() => {
-        resetGameContainer()
-        resetInfoContainer()
-        gameState.currentStatus = CurrentStatus.Finished
-        resetGameState()
-        cardsContainer.appendChild(handleStartButtonClick());
-    }, 5000);
-}
-
-function handleGameStarted() {
-    const shuffledCards = shuffleArray(cards);
-    if (infoContainer && cardsContainer) {
-
-        shuffledCards.forEach((card) => {
-            const cardElement = createCardElement(card.src, card.id);
-            cardElement.id = card.id;
-            cardsContainer.appendChild(cardElement);
-
-            handleCardClick(cardElement, card)
-        });
-    }
-}
-
-function handleCardClick(cardElement: HTMLElement, card: Card) {
-    if (cardsContainer && infoContainer) {
-        cardElement.addEventListener("click", () => {
-            if (gameState.flippedCards < CARDS_TO_FLIP) {
-                onOneCardFlipped(card)
-            }
-
-            if (gameState.flippedCards === CARDS_TO_FLIP) {
-                onAllCardsFlipped()
-            }
-        });
-    }
-}
-
-function onOneCardFlipped(card: Card) {
-    flipCard(card);
-    gameState.pickedCards.push(card);
+export function addFlippedCards() {
     gameState.flippedCards++;
 }
 
-function onAllCardsFlipped() {
-    const scoreText = createScoreText();
-    if (cardsContainer && infoContainer) {
-        infoContainer.appendChild(scoreText);
-        setTimeout(() => {
-            checkIfCouple(gameState.pickedCards);
-            updateAttempts(scoreText);
-
-            if (isGameWon()) {
-                handleGameWin(cardsContainer);
-            }
-
-            gameState.pickedCards = [];
-            gameState.flippedCards = 0;
-        }, 1000);
-    }
+export function addGameAttempt() {
+    gameState.attempts++;
 }
 
-function resetGameContainer() {
-    if (cardsContainer) {
-        cardsContainer.innerHTML = "";
-    }
-}
-
-function resetInfoContainer() {
-    if (infoContainer) {
-        infoContainer.innerHTML = "";
-    }
-}
-
-export function initializeGame() {
-    if (cardsContainer && infoContainer) {
-        resetGameContainer()
-        if (gameState.currentStatus === CurrentStatus.NotStarted || gameState.currentStatus === CurrentStatus.Finished) {
-            cardsContainer.appendChild(handleStartButtonClick());
-        }
-
-        if (gameState.currentStatus === CurrentStatus.Started) {
-            handleGameStarted()
-        }
-    }
+export function changeGameStatus(status: CurrentStatus) {
+    gameState.currentStatus = status;
 }

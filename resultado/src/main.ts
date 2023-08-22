@@ -1,5 +1,5 @@
 import './style.css';
-import { initializeGame } from './motor';
+import { initializeGame } from './ui';
 
 document.addEventListener('DOMContentLoaded', () => {    
     initializeGame();
