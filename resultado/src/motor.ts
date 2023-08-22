@@ -1,6 +1,9 @@
 import { Card, GameState, CARDS_TO_FLIP, cards, CurrentStatus } from './model';
 import { createCardElement, createStartButton, createScoreText, setAlertText } from './ui';
 
+const cardsContainer = document.getElementById("cards-container");
+const infoContainer = document.getElementById("info-container");
+
 export let gameState: GameState = {
     flippedCards: 0,
     pickedCards: [],
@@ -79,63 +82,90 @@ function updateAttempts(scoreText: HTMLElement): number {
     return gameState.attempts;
 }
 
-function handleGameWin(cardsContainer: HTMLElement, infoContainer: HTMLElement) {
+function handleGameWin(cardsContainer: HTMLElement) {
     setAlertText<HTMLElement>("alerts-container", "¡Has ganado! Espera para volver a jugar.", 5000);
     setTimeout(() => {
-        cardsContainer.innerHTML = "";
-        infoContainer.innerHTML = "";
+        resetGameContainer()
+        resetInfoContainer()
         gameState.currentStatus = CurrentStatus.Finished
         resetGameState()
         cardsContainer.appendChild(handleStartButtonClick());
     }, 5000);
 }
 
-export function initializeGame() {
-    const cardsContainer = document.getElementById("cards-container");
-    const infoContainer = document.getElementById("info-container");
-
-    if (!cardsContainer || !infoContainer) {
-        return;
-    }
-
-    cardsContainer.innerHTML = "";
-
-    if (gameState.currentStatus === CurrentStatus.NotStarted || gameState.currentStatus === CurrentStatus.Finished) {
-        cardsContainer.appendChild(handleStartButtonClick());
-        return;
-    }
-
-    if (gameState.currentStatus === CurrentStatus.Started) {
-        const shuffledCards = shuffleArray(cards);
-        const scoreText = createScoreText();
-        infoContainer.appendChild(scoreText);
+function handleGameStarted() {
+    const shuffledCards = shuffleArray(cards);
+    if (infoContainer && cardsContainer) {
 
         shuffledCards.forEach((card) => {
             const cardElement = createCardElement(card.src, card.id);
             cardElement.id = card.id;
             cardsContainer.appendChild(cardElement);
 
-            cardElement.addEventListener("click", () => {
-                if (gameState.flippedCards < CARDS_TO_FLIP) {
-                    flipCard(card);
-                    gameState.pickedCards.push(card);
-                    gameState.flippedCards++;
-                }
-
-                if (gameState.flippedCards === CARDS_TO_FLIP) {
-                    setTimeout(() => {
-                        checkIfCouple(gameState.pickedCards);
-                        updateAttempts(scoreText);
-
-                        if (isGameWon()) {
-                            handleGameWin(cardsContainer, infoContainer);
-                        }
-
-                        gameState.pickedCards = [];
-                        gameState.flippedCards = 0;                    
-                    }, 1000);
-                }
-            });
+            handleCardClick(cardElement, card)
         });
+    }
+}
+
+function handleCardClick(cardElement: HTMLElement, card: Card) {
+    if (cardsContainer && infoContainer) {
+        cardElement.addEventListener("click", () => {
+            if (gameState.flippedCards < CARDS_TO_FLIP) {
+                onOneCardFlipped(card)
+            }
+
+            if (gameState.flippedCards === CARDS_TO_FLIP) {
+                onAllCardsFlipped()
+            }
+        });
+    }
+}
+
+function onOneCardFlipped(card: Card) {
+    flipCard(card);
+    gameState.pickedCards.push(card);
+    gameState.flippedCards++;
+}
+
+function onAllCardsFlipped() {
+    const scoreText = createScoreText();
+    if (cardsContainer && infoContainer) {
+        infoContainer.appendChild(scoreText);
+        setTimeout(() => {
+            checkIfCouple(gameState.pickedCards);
+            updateAttempts(scoreText);
+
+            if (isGameWon()) {
+                handleGameWin(cardsContainer);
+            }
+
+            gameState.pickedCards = [];
+            gameState.flippedCards = 0;
+        }, 1000);
+    }
+}
+
+function resetGameContainer() {
+    if (cardsContainer) {
+        cardsContainer.innerHTML = "";
+    }
+}
+
+function resetInfoContainer() {
+    if (infoContainer) {
+        infoContainer.innerHTML = "";
+    }
+}
+
+export function initializeGame() {
+    if (cardsContainer && infoContainer) {
+        resetGameContainer()
+        if (gameState.currentStatus === CurrentStatus.NotStarted || gameState.currentStatus === CurrentStatus.Finished) {
+            cardsContainer.appendChild(handleStartButtonClick());
+        }
+
+        if (gameState.currentStatus === CurrentStatus.Started) {
+            handleGameStarted()
+        }
     }
 }
