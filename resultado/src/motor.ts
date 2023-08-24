@@ -29,6 +29,7 @@ export function checkIfCouple(pickedCards: Card[]) {
             cardB.founded = true;
             return true;
         }
+
         return false;
     }
 

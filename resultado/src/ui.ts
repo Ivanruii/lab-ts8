@@ -135,43 +135,52 @@ function handleGameStarted() {
 }
 
 function handleCardClick(cardElement: HTMLElement, card: Card) {
-    cardElement.addEventListener("click", () => {
-        if (gameState.flippedCards < CARDS_TO_FLIP) {
-            onOneCardFlipped(card)
-        }
+    if (gameState.currentStatus !== CurrentStatus.CheckingCards) {
+        cardElement.addEventListener("click", () => {
+            if (gameState.flippedCards < CARDS_TO_FLIP) {
+                onOneCardFlipped(card)
+            }
 
-        if (gameState.flippedCards === CARDS_TO_FLIP) {
-            onAllCardsFlipped()
-        }
-    });
+            if (gameState.flippedCards === CARDS_TO_FLIP) {
+                onAllCardsFlipped()
+            }
+        });
+    }
 }
 
 function onOneCardFlipped(card: Card) {
-    flipCard(card);
-    gameState.pickedCards.push(card);
-    addFlippedCards()
+    if (gameState.flippedCards !== CARDS_TO_FLIP) {
+        addFlippedCards()
+        flipCard(card);
+        gameState.pickedCards.push(card);
+    }
 }
 
 function onAllCardsFlipped() {
-    const elements = initializeElements();
+    if (gameState.currentStatus !== CurrentStatus.CheckingCards) {
+        const elements = initializeElements();
+        elements.infoContainer.appendChild(elements.scoreText);
 
-    elements.infoContainer.appendChild(elements.scoreText);
-    setTimeout(() => {
-        if (!checkIfCouple(gameState.pickedCards)) {
-            gameState.pickedCards.forEach((card) => {
-                flipCard(card);
-            })
-        }
+        changeGameStatus(CurrentStatus.CheckingCards)
+        setTimeout(() => {
+            let cardsFounded = checkIfCouple(gameState.pickedCards)
 
-        updateAttempts(elements.scoreText);
+            if (!cardsFounded) {
+                gameState.pickedCards.forEach((card) => {
+                    flipCard(card);
+                })
+            }
 
-        if (isGameWon()) {
-            handleGameWin(elements.cardsContainer);
-        }
+            if (isGameWon()) {
+                handleGameWin(elements.cardsContainer);
+            }
 
-        gameState.pickedCards = [];
-        gameState.flippedCards = 0;
-    }, 1000);
+            updateAttempts(elements.scoreText);
+            gameState.pickedCards = [];
+            gameState.flippedCards = 0;
+            changeGameStatus(CurrentStatus.Started)
+        }, 1000);
+    }
 }
 
 function resetGameContainer() {

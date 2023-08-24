@@ -8,7 +8,8 @@ export interface Card {
 export enum CurrentStatus {
     NotStarted = 'NotStarted',
     Started = 'Started',
-    Finished = 'Finished'
+    Finished = 'Finished',
+    CheckingCards = 'LoadingCards'
 }
 
 export type GameState = {
