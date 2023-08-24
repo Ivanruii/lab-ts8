@@ -17,10 +17,6 @@ body {
 }
 
 #cards-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: grid;
   grid-template-columns: repeat(4, 150px);
   gap: 30px;
